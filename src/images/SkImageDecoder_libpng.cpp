@@ -110,6 +110,32 @@ static bool substituteTranspColor(SkBitmap* bm, SkPMColor match) {
     return reallyHasAlpha;
 }
 
+static bool canUpscalePaletteToConfig(SkBitmap::Config prefConfig,
+                                      bool srcHasAlpha) {
+    switch (prefConfig) {
+        case SkBitmap::kARGB_8888_Config:
+        case SkBitmap::kARGB_4444_Config:
+            return true;
+        case SkBitmap::kRGB_565_Config:
+            // only return true if the src is opaque (since 565 is opaque)
+            return !srcHasAlpha;
+        default:
+            return false;
+    }
+}
+
+// call only if color_type is PALETTE. Returns true if the ctable has alpha
+static bool hasTransparencyInPalette(png_structp png_ptr, png_infop info_ptr) {
+    png_bytep trans;
+    int num_trans;
+
+    if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
+        png_get_tRNS(png_ptr, info_ptr, &trans, &num_trans, NULL);
+        return num_trans > 0;
+    }
+    return false;
+}
+
 bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
                                  SkBitmap::Config prefConfig, Mode mode) {
 //    SkAutoTrace    apr("SkPNGImageDecoder::onDecode");
@@ -207,7 +233,12 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     }
     
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
-        config = SkBitmap::kIndex8_Config;  // defer sniffing for hasAlpha
+        config = SkBitmap::kIndex8_Config;
+        // now see if we can upscale to their requested config
+        bool paletteHasAlpha = hasTransparencyInPalette(png_ptr, info_ptr);
+        if (canUpscalePaletteToConfig(prefConfig, paletteHasAlpha)) {
+            config = prefConfig;
+        }
     } else {
         png_color_16p   transpColor = NULL;
         int             numTransp = 0;
@@ -259,13 +290,29 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             }
         }
     }
-    
+
+    // sanity check for size
+    {
+        Sk64 size;
+        size.setMul(origWidth, origHeight);
+        if (size.isNeg() || !size.is32()) {
+            return false;
+        }
+        // now check that if we are 4-bytes per pixel, we also don't overflow
+        if (size.get32() > (0x7FFFFFFF >> 2)) {
+            return false;
+        }
+    }
+
     if (!this->chooseFromOneChoice(config, origWidth, origHeight)) {
         return false;
     }
     
     const int sampleSize = this->getSampleSize();
     SkScaledBitmapSampler sampler(origWidth, origHeight, sampleSize);
+
+    // we must always return the same config, independent of mode, so if we were
+    // going to respect prefConfig, it must have happened by now
 
     decodedBitmap->setConfig(config, sampler.scaledWidth(),
                              sampler.scaledHeight(), 0);
@@ -279,7 +326,6 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     // to |= PNG_COLOR_MASK_ALPHA, but all of its pixels are in fact opaque. We care, since we
     // draw lots faster if we can flag the bitmap has being opaque
     bool reallyHasAlpha = false;
-
     SkColorTable* colorTable = NULL;
 
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
@@ -337,7 +383,9 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
     
     SkAutoUnref aur(colorTable);
 
-    if (!this->allocPixelRef(decodedBitmap, colorTable)) {
+    if (!this->allocPixelRef(decodedBitmap,
+                             SkBitmap::kIndex8_Config == config ?
+                                colorTable : NULL)) {
         return false;
     }
     
@@ -379,7 +427,7 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
         SkScaledBitmapSampler::SrcConfig sc;
         int srcBytesPerPixel = 4;
         
-        if (SkBitmap::kIndex8_Config == config) {
+        if (colorTable != NULL) {
             sc = SkScaledBitmapSampler::kIndex;
             srcBytesPerPixel = 1;
         } else if (hasAlpha) {
@@ -388,14 +436,37 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
             sc = SkScaledBitmapSampler::kRGBX;
         }
 
-        SkAutoMalloc storage(origWidth * srcBytesPerPixel);
+        /*  We have to pass the colortable explicitly, since we may have one
+            even if our decodedBitmap doesn't, due to the request that we
+            upscale png's palette to a direct model
+         */
+        SkAutoLockColors ctLock(colorTable);
+        if (!sampler.begin(decodedBitmap, sc, doDither, ctLock.colors())) {
+            return false;
+        }
         const int height = decodedBitmap->height();
 
-        for (int i = 0; i < number_passes; i++) {
-            if (!sampler.begin(decodedBitmap, sc, doDither)) {
-                return false;
-            }
+        if (number_passes > 1) {
+            SkAutoMalloc storage(origWidth * origHeight * srcBytesPerPixel);
+            uint8_t* base = (uint8_t*)storage.get();
+            size_t rb = origWidth * srcBytesPerPixel;
 
+            for (int i = 0; i < number_passes; i++) {
+                uint8_t* row = base;
+                for (png_uint_32 y = 0; y < origHeight; y++) {
+                    uint8_t* bmRow = row;
+                    png_read_rows(png_ptr, &bmRow, png_bytepp_NULL, 1);
+                    row += rb;
+                }
+            }
+            // now sample it
+            base += sampler.srcY0() * rb;
+            for (int y = 0; y < height; y++) {
+                reallyHasAlpha |= sampler.next(base);
+                base += sampler.srcDY() * rb;
+            }
+        } else {
+            SkAutoMalloc storage(origWidth * srcBytesPerPixel);
             uint8_t* srcRow = (uint8_t*)storage.get();
             skip_src_rows(png_ptr, srcRow, sampler.srcY0());
 
@@ -407,19 +478,12 @@ bool SkPNGImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* decodedBitmap,
                     skip_src_rows(png_ptr, srcRow, sampler.srcDY() - 1);
                 }
             }
-            
+
             // skip the rest of the rows (if any)
             png_uint_32 read = (height - 1) * sampler.srcDY() +
                                sampler.srcY0() + 1;
             SkASSERT(read <= origHeight);
             skip_src_rows(png_ptr, srcRow, origHeight - read);
-        }
-
-        if (hasAlpha && !reallyHasAlpha) {
-#if 0
-            SkDEBUGF(("Image doesn't really have alpha [%d %d]\n",
-                      origWidth, origHeight));
-#endif
         }
     }
 
@@ -745,16 +809,17 @@ bool SkPNGImageEncoder::onEncode(SkWStream* stream, const SkBitmap& bitmap,
                  PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE,
                  PNG_FILTER_TYPE_BASE);
 
-#if 0   // need to support this some day
-    /* set the palette if there is one.  REQUIRED for indexed-color images */
-    palette = (png_colorp)png_malloc(png_ptr, PNG_MAX_PALETTE_LENGTH
-             * png_sizeof (png_color));
-    /* ... set palette colors ... */
-    png_set_PLTE(png_ptr, info_ptr, palette, PNG_MAX_PALETTE_LENGTH);
-    /* You must not free palette here, because png_set_PLTE only makes a link to
-      the palette that you malloced.  Wait until you are about to destroy
-      the png structure. */
-#endif
+    // set our colortable/trans arrays if needed
+    png_color paletteColors[256];
+    png_byte trans[256];
+    if (SkBitmap::kIndex8_Config == config) {
+        SkColorTable* ct = bitmap.getColorTable();
+        int numTrans = pack_palette(ct, paletteColors, trans, hasAlpha);
+        png_set_PLTE(png_ptr, info_ptr, paletteColors, ct->count());
+        if (numTrans > 0) {
+            png_set_tRNS(png_ptr, info_ptr, trans, numTrans, NULL);
+        }
+    }
 
     png_set_sBIT(png_ptr, info_ptr, &sig_bit);
     png_write_info(png_ptr, info_ptr);
