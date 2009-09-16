@@ -184,9 +184,9 @@ LOCAL_SRC_FILES += \
 
 # including the optimized assembly code for the src-overing operation
 ifeq ($(TARGET_ARCH),arm)
-        LOCAL_CFLAGS += -DUSE_ARM_ASM
+        LOCAL_CFLAGS += -DUSE_T32CB16BLEND_ASM
         LOCAL_SRC_FILES += \
-	        src/core/asm/s32a_d565_opaque.S
+	        src/core/asm/t32cb16blend.S
 endif
 
 LOCAL_SHARED_LIBRARIES := \
@@ -227,10 +227,6 @@ LOCAL_CFLAGS += -fpic -fstrict-aliasing
 
 ifeq ($(NO_FALLBACK_FONT),true)
 	LOCAL_CFLAGS += -DNO_FALLBACK_FONT
-endif
-
-ifeq ($(TARGET_ARCH),arm)
-	LOCAL_CFLAGS += -DUSE_T32CB16BLEND_ASM
 endif
 
 LOCAL_LDLIBS += -lpthread
