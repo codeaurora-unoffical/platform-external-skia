@@ -203,11 +203,6 @@ LOCAL_STATIC_LIBRARIES := \
 	libgif \
 	libjpeg
 
-ifeq ($(TARGET_ARCH),arm)
-	LOCAL_STATIC_LIBRARIES += \
-			libpixelflinger_static
-endif
-
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/src/core \
 	$(LOCAL_PATH)/include/core \
