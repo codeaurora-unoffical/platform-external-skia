@@ -214,6 +214,12 @@ ifeq ($(ARCH_ARMV6_ARMV7),true)
 endif
 
 
+ifeq ($(ARCH_ARM_HAVE_NEON),true)
+	LOCAL_SRC_FILES += \
+		src/opts/memset16_neon.S \
+		src/opts/memset32_neon.S
+endif
+
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \
         libemoji \
