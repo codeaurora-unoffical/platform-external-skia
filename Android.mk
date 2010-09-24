@@ -195,7 +195,8 @@ ifeq ($(TARGET_ARCH),arm)
 	LOCAL_CFLAGS += -D__CPU_ARCH_ARM
 	LOCAL_SRC_FILES += \
 		src/opts/S32A_D565_Opaque_arm.S \
-		src/opts/S32A_Opaque_BlitRow32_arm.S
+		src/opts/S32A_Opaque_BlitRow32_arm.S \
+		src/opts/S32A_Blend_BlitRow32_arm.S
 endif
 
 ifeq "$(findstring armv6,$(TARGET_ARCH_VARIANT))" "armv6"
