@@ -295,8 +295,7 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
                     scanline += rowBytes;
                 }
             }
-            goto DONE;
-            } break;
+            } return true;
             
         case EXTENSION_RECORD_TYPE:
             if (DGifGetExtension(gif, &temp_save.Function,
@@ -325,8 +324,8 @@ bool SkGIFImageDecoder::onDecode(SkStream* sk_stream, SkBitmap* bm, Mode mode) {
         }
     } while (recType != TERMINATE_RECORD_TYPE);
 
-DONE:
-    return true;
+    // Return error, since the image descriptor record type is not present
+    return error_return(gif, *bm, "no image descriptor");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
