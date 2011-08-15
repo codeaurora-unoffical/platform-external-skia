@@ -260,6 +260,11 @@ LOCAL_STATIC_LIBRARIES := \
 	libwebp-decode \
 	libwebp-encode
 
+ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+	LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
+endif
+
+
 LOCAL_C_INCLUDES += \
 	$(LOCAL_PATH)/src/core \
 	$(LOCAL_PATH)/include/core \
@@ -340,6 +345,10 @@ LOCAL_SRC_FILES:= \
   src/gpu/SkGrTexturePixelRef.cpp \
   src/gpu/SkGrFontScaler.cpp \
 	src/gpu/GrPrintf_skia.cpp
+
+ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+	LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
+endif
 
 LOCAL_SHARED_LIBRARIES := \
   libcutils \

@@ -124,6 +124,8 @@ public:
      */
     virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
 
+    virtual int shadeSpanMulti(int x, int y, SkPMColor colors[], int count, int height) { shadeSpan(x, y, colors, count); return 1; }
+
     /**
      *  Called only for 16bit devices when getFlags() returns
      *  kOpaqueAlphaFlag | kHasSpan16_Flag
@@ -159,6 +161,9 @@ public:
      */
     virtual void beginSession();
     virtual void endSession();
+
+    virtual void beginRect(int x, int y, int width, int height);
+    virtual void endRect();
 
     /**
      Gives method bitmap should be read to implement a shader.
@@ -278,6 +283,14 @@ public:
                                         TileMode tmx, TileMode tmy);
 
     virtual void flatten(SkFlattenableWriteBuffer& );
+
+    enum SkShaderIds {
+        kSkBitmapProcShader_Class = 0x1,
+        kSkShader_OtherClass      = 0x2,
+    };
+
+    virtual SkShaderIds getID() { return kSkShader_OtherClass; }
+
 protected:
     enum MatrixClass {
         kLinear_MatrixClass,            // no perspective
