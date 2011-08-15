@@ -139,6 +139,7 @@ public:
     virtual ~SkARGB32_Shader_Blitter();
     virtual void blitH(int x, int y, int width);
     virtual void blitAntiH(int x, int y, const SkAlpha antialias[], const int16_t runs[]);
+    virtual void blitRect(int x, int y, int width, int height);
 
 private:
     SkXfermode*         fXfermode;
