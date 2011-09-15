@@ -165,6 +165,14 @@ public:
                                         TileMode tmx, TileMode tmy);
 
     virtual void flatten(SkFlattenableWriteBuffer& );
+
+    enum SkShaderIds {
+        kSkBitmapProcShader_Class = 0x1,
+        kSkShader_OtherClass      = 0x2,
+    };
+
+    virtual SkShaderIds getID() { return kSkShader_OtherClass; }
+
 protected:
     enum MatrixClass {
         kLinear_MatrixClass,            // no perspective
