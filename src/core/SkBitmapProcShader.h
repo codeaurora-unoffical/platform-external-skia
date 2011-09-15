@@ -43,6 +43,8 @@ public:
     // override from flattenable
     virtual bool toDumpString(SkString* str) const;
 
+    virtual SkShaderIds getID() { return kSkBitmapProcShader_Class; }
+
 protected:
     SkBitmapProcShader(SkFlattenableReadBuffer& );
     virtual void flatten(SkFlattenableWriteBuffer& );
