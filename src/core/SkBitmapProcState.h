@@ -24,10 +24,10 @@ class SkPaint;
 
 struct SkBitmapProcState {
 
-    typedef void (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
+    typedef int  (*ShaderProc32)(const SkBitmapProcState&, int x, int y,
                                  SkPMColor[], int count);
 
-    typedef void (*ShaderProc16)(const SkBitmapProcState&, int x, int y,
+    typedef int  (*ShaderProc16)(const SkBitmapProcState&, int x, int y,
                                  uint16_t[], int count);
 
     typedef void (*MatrixProc)(const SkBitmapProcState&,
@@ -90,6 +90,11 @@ struct SkBitmapProcState {
         implementation can do nothing (see SkBitmapProcState_opts_none.cpp)
      */
     void platformProcs();
+
+    /* Perform rectaingle geometry specific setup/cleanup */
+    void beginRect(int x, int y, int width, int height)  __attribute__((weak));
+    void endRect()__attribute__((weak));
+    void *              fOptPtr;
 
     /** Given the size of a buffer, to be used for calling the matrix and
         sample procs, this return the maximum count that can be stored in the

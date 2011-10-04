@@ -234,6 +234,7 @@ LOCAL_STATIC_LIBRARIES := \
 	libgif
 
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+
 	LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
 endif
 
@@ -285,6 +286,10 @@ LOCAL_SRC_FILES:= \
 	src/gl/SkGLDevice_SWLayer.cpp \
 	src/gl/SkGLTextCache.cpp \
 	src/gl/SkTextureCache.cpp
+
+ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
+	LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
+endif
 
 LOCAL_SHARED_LIBRARIES := \
 	libcutils \

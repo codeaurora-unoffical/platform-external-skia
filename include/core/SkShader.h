@@ -115,6 +115,9 @@ public:
         correspond to the specified device coordinates.
     */
     virtual void shadeSpan(int x, int y, SkPMColor[], int count) = 0;
+
+    virtual int shadeSpanMulti(int x, int y, SkPMColor colors[], int count, int height) { shadeSpan(x, y, colors, count); return 1; }
+
     /** Called only for 16bit devices when getFlags() returns
         kOpaqueAlphaFlag | kHasSpan16_Flag
     */
@@ -123,6 +126,7 @@ public:
         The default implementation calls shadeSpan() and then extracts the alpha
         values from the returned colors.
     */
+
     virtual void shadeSpanAlpha(int x, int y, uint8_t alpha[], int count);
 
     /** Helper function that returns true if this shader's shadeSpan16() method can
@@ -144,7 +148,11 @@ public:
     */
     virtual void beginSession();
     virtual void endSession();
-    
+
+    virtual void beginRect(int x, int y, int width, int height);
+    virtual void endRect();
+
+
     /** Optional methods for shaders that can pretend to be a bitmap/texture
         to play along with opengl. Default just returns false and ignores
         the out parameters.

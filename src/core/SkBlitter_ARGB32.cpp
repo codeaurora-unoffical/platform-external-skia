@@ -452,6 +452,12 @@ void SkARGB32_Shader_Blitter::blitRect(int x, int y, int width, int height)
         this->blitH(x, y++, width);
 }
 
+
+int SkARGB32_Shader_Blitter::blitMultiH(int x, int y, int width, int height) {
+    SkDebugf("WEAK SkARGB32_Shader_Blitter::blitMultiH");
+    return 0;
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
 void SkARGB32_Shader_Blitter::blitAntiH(int x, int y, const SkAlpha antialias[],
