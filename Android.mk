@@ -180,6 +180,9 @@ LOCAL_SRC_FILES:= \
 	src/core/SkUnPreMultiply.cpp \
 	src/core/SkXfermode.cpp \
 	src/core/SkWriter32.cpp \
+	src/core/SkAltCanvas.cpp \
+	src/core/SkRecordingData.cpp \
+	src/core/SkAltRecordingData.cpp \
 	src/utils/SkBoundaryPatch.cpp \
 	src/utils/SkCamera.cpp \
 	src/utils/SkDumpCanvas.cpp \

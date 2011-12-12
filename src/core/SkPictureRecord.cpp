@@ -26,6 +26,7 @@ SkPictureRecord::~SkPictureRecord() {
 ///////////////////////////////////////////////////////////////////////////////
 
 int SkPictureRecord::save(SaveFlags flags) {
+    fData.addSave();
     addDraw(SAVE);
     addInt(flags);
 
@@ -37,6 +38,7 @@ int SkPictureRecord::save(SaveFlags flags) {
 
 int SkPictureRecord::saveLayer(const SkRect* bounds, const SkPaint* paint,
                                SaveFlags flags) {
+    fData.addSaveLayer();
     addDraw(SAVE_LAYER);
     addRectPtr(bounds);
     addPaintPtr(paint);
@@ -59,6 +61,7 @@ void SkPictureRecord::restore() {
     if (fRestoreOffsetStack.count() == 0) {
         return;
     }
+    fData.addRestore();
 
     // patch up the clip offsets
     uint32_t restoreOffset = (uint32_t)fWriter.size();
@@ -76,6 +79,7 @@ void SkPictureRecord::restore() {
 }
 
 bool SkPictureRecord::translate(SkScalar dx, SkScalar dy) {
+    fData.addTranslate();
     addDraw(TRANSLATE);
     addScalar(dx);
     addScalar(dy);
@@ -84,6 +88,7 @@ bool SkPictureRecord::translate(SkScalar dx, SkScalar dy) {
 }
 
 bool SkPictureRecord::scale(SkScalar sx, SkScalar sy) {
+    fData.addScale();
     addDraw(SCALE);
     addScalar(sx);
     addScalar(sy);
@@ -92,6 +97,7 @@ bool SkPictureRecord::scale(SkScalar sx, SkScalar sy) {
 }
 
 bool SkPictureRecord::rotate(SkScalar degrees) {
+    fData.addRotate();
     addDraw(ROTATE);
     addScalar(degrees);
     validate();
@@ -99,6 +105,7 @@ bool SkPictureRecord::rotate(SkScalar degrees) {
 }
 
 bool SkPictureRecord::skew(SkScalar sx, SkScalar sy) {
+    fData.addSkew();
     addDraw(SKEW);
     addScalar(sx);
     addScalar(sy);
@@ -107,6 +114,7 @@ bool SkPictureRecord::skew(SkScalar sx, SkScalar sy) {
 }
 
 bool SkPictureRecord::concat(const SkMatrix& matrix) {
+    fData.addConcat();
     validate();
     addDraw(CONCAT);
     addMatrix(matrix);
@@ -115,6 +123,7 @@ bool SkPictureRecord::concat(const SkMatrix& matrix) {
 }
 
 void SkPictureRecord::setMatrix(const SkMatrix& matrix) {
+    fData.addSetMatrix();
     validate();
     addDraw(SET_MATRIX);
     addMatrix(matrix);
@@ -123,6 +132,7 @@ void SkPictureRecord::setMatrix(const SkMatrix& matrix) {
 }
 
 bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op) {
+    fData.addClipRect();
     addDraw(CLIP_RECT);
     addRect(rect);
     addInt(op);
@@ -136,6 +146,7 @@ bool SkPictureRecord::clipRect(const SkRect& rect, SkRegion::Op op) {
 }
 
 bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op) {
+    fData.addClipPath();
     addDraw(CLIP_PATH);
     addPath(path);
     addInt(op);
@@ -154,6 +165,7 @@ bool SkPictureRecord::clipPath(const SkPath& path, SkRegion::Op op) {
 }
 
 bool SkPictureRecord::clipRegion(const SkRegion& region, SkRegion::Op op) {
+    fData.addClipRegion();
     addDraw(CLIP_REGION);
     addRegion(region);
     addInt(op);
@@ -173,6 +185,7 @@ void SkPictureRecord::clear(SkColor color) {
 }
 
 void SkPictureRecord::drawPaint(const SkPaint& paint) {
+    fData.addDrawPaint();
     addDraw(DRAW_PAINT);
     addPaint(paint);
     validate();
@@ -180,6 +193,7 @@ void SkPictureRecord::drawPaint(const SkPaint& paint) {
 
 void SkPictureRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts[],
                         const SkPaint& paint) {
+    fData.addDrawPoints();
     addDraw(DRAW_POINTS);
     addPaint(paint);
     addInt(mode);
@@ -189,6 +203,7 @@ void SkPictureRecord::drawPoints(PointMode mode, size_t count, const SkPoint pts
 }
 
 void SkPictureRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
+    fData.addDrawRect();
     addDraw(DRAW_RECT);
     addPaint(paint);
     addRect(rect);
@@ -196,6 +211,7 @@ void SkPictureRecord::drawRect(const SkRect& rect, const SkPaint& paint) {
 }
 
 void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
+    fData.addDrawPath();
     addDraw(DRAW_PATH);
     addPaint(paint);
     addPath(path);
@@ -204,6 +220,7 @@ void SkPictureRecord::drawPath(const SkPath& path, const SkPaint& paint) {
 
 void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar top,
                         const SkPaint* paint = NULL) {
+    fData.addDrawBitmap();
     addDraw(DRAW_BITMAP);
     addPaintPtr(paint);
     addBitmap(bitmap);
@@ -214,6 +231,7 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
 
 void SkPictureRecord::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
                             const SkRect& dst, const SkPaint* paint) {
+    fData.addDrawBitmapRect();
     addDraw(DRAW_BITMAP_RECT);
     addPaintPtr(paint);
     addBitmap(bitmap);
@@ -224,6 +242,7 @@ void SkPictureRecord::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
 
 void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& matrix,
                               const SkPaint* paint) {
+    fData.addDrawBitmapMat();
     addDraw(DRAW_BITMAP_MATRIX);
     addPaintPtr(paint);
     addBitmap(bitmap);
@@ -233,6 +252,7 @@ void SkPictureRecord::drawBitmapMatrix(const SkBitmap& bitmap, const SkMatrix& m
 
 void SkPictureRecord::drawSprite(const SkBitmap& bitmap, int left, int top,
                         const SkPaint* paint = NULL) {
+    fData.addDrawSprite();
     addDraw(DRAW_SPRITE);
     addPaintPtr(paint);
     addBitmap(bitmap);
@@ -258,6 +278,7 @@ void SkPictureRecord::addFontMetricsTopBottom(const SkPaint& paint,
 
 void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
                       SkScalar y, const SkPaint& paint) {
+    fData.addDrawText();
     bool fast = paint.canComputeFastBounds();
 
     addDraw(fast ? DRAW_TEXT_TOP_BOTTOM : DRAW_TEXT);
@@ -273,6 +294,7 @@ void SkPictureRecord::drawText(const void* text, size_t byteLength, SkScalar x,
 
 void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
                          const SkPoint pos[], const SkPaint& paint) {
+    fData.addDrawPosText();
     size_t points = paint.countText(text, byteLength);
     if (0 == points)
         return;
@@ -325,6 +347,7 @@ void SkPictureRecord::drawPosText(const void* text, size_t byteLength,
 void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
                           const SkScalar xpos[], SkScalar constY,
                           const SkPaint& paint) {
+    fData.addDrawPosTextH();
     size_t points = paint.countText(text, byteLength);
     if (0 == points)
         return;
@@ -354,6 +377,7 @@ void SkPictureRecord::drawPosTextH(const void* text, size_t byteLength,
 void SkPictureRecord::drawTextOnPath(const void* text, size_t byteLength,
                             const SkPath& path, const SkMatrix* matrix,
                             const SkPaint& paint) {
+    fData.addDrawTextPath();
     addDraw(DRAW_TEXT_ON_PATH);
     addPaint(paint);
     addText(text, byteLength);
@@ -363,12 +387,14 @@ void SkPictureRecord::drawTextOnPath(const void* text, size_t byteLength,
 }
 
 void SkPictureRecord::drawPicture(SkPicture& picture) {
+    fData.addDrawPicture();
     addDraw(DRAW_PICTURE);
     addPicture(picture);
     validate();
 }
 
 void SkPictureRecord::drawShape(SkShape* shape) {
+    fData.addDrawShape();
     addDraw(DRAW_SHAPE);
 
     int index = fShapes.find(shape);
@@ -387,6 +413,7 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
                           const SkColor colors[], SkXfermode*,
                           const uint16_t indices[], int indexCount,
                           const SkPaint& paint) {
+    fData.addDrawVertices();
     uint32_t flags = 0;
     if (texs) {
         flags |= DRAW_VERTICES_HAS_TEXS;
@@ -417,6 +444,7 @@ void SkPictureRecord::drawVertices(VertexMode vmode, int vertexCount,
 }
 
 void SkPictureRecord::drawData(const void* data, size_t length) {
+    fData.addDrawData();
     addDraw(DRAW_DATA);
     addInt(length);
     fWriter.writePad(data, length);
@@ -442,6 +470,7 @@ void SkPictureRecord::reset() {
 
     fRCSet.reset();
     fTFSet.reset();
+    fData.reset();
 }
 
 void SkPictureRecord::addBitmap(const SkBitmap& bitmap) {

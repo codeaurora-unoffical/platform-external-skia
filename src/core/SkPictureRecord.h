@@ -8,6 +8,7 @@
 #include "SkPictureFlat.h"
 #include "SkTemplates.h"
 #include "SkWriter32.h"
+#include "SkAltRecordingData.h"
 
 class SkPictureRecord : public SkCanvas {
 public:
@@ -85,6 +86,8 @@ public:
     const SkWriter32& writeStream() const {
         return fWriter;
     }
+
+    SkAltRecordingData fData;
 
 private:
     SkTDArray<uint32_t> fRestoreOffsetStack;
