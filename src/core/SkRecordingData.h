@@ -68,6 +68,7 @@ class SkRecordingData{
         virtual void addDrawShape()             {   ++n_drawshape;  }
         virtual void addDrawVertices()          {   ++n_drawvertices;   }
         virtual void addDrawData()              {   ++n_drawdata;   }
+        virtual void addCompressedBitmap()      {   ++n_compressedbitmaps;  }
 
         virtual bool canUseGpuRendering()      {   return false;   }
 
@@ -102,6 +103,7 @@ class SkRecordingData{
         int n_drawshape;
         int n_drawvertices;
         int n_drawdata;
+        int n_compressedbitmaps;
 };
 
 #endif

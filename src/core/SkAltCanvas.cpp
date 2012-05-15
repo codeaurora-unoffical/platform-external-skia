@@ -46,6 +46,8 @@ void SkAltCanvas::reset()
     mPrimitiveBitmapMap.reset();
     mPrimitives.reset();
     mPrimitivesTexCoords.reset();
+    mXScale.reset();
+    mYScale.reset();
     mNumBitmaps = 0;
     mNumPrimitives = 0;
 }
