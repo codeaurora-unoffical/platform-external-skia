@@ -57,7 +57,8 @@ SkRecordingData::SkRecordingData()
         n_drawpicture(0),
         n_drawshape(0),
         n_drawvertices(0),
-        n_drawdata(0)
+        n_drawdata(0),
+        n_compressedbitmaps(0)
 {}
 
 SkRecordingData::~SkRecordingData()
@@ -72,6 +73,6 @@ void SkRecordingData::reset()
     n_drawpath = n_drawbitmap = n_drawbitmaprect = n_drawbitmapmat = 0;
     n_drawsprite = n_drawtext = n_drawpostext = n_drawpostexth = 0;
     n_drawtextpath = n_drawpicture = n_drawshape = n_drawvertices = 0;
-    n_drawdata = 0;
+    n_drawdata = n_compressedbitmaps = 0;
 
 }

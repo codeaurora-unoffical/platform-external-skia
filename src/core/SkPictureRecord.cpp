@@ -232,6 +232,9 @@ void SkPictureRecord::drawBitmap(const SkBitmap& bitmap, SkScalar left, SkScalar
 void SkPictureRecord::drawBitmapRect(const SkBitmap& bitmap, const SkIRect* src,
                             const SkRect& dst, const SkPaint* paint) {
     fData.addDrawBitmapRect();
+    SkBitmap::Config config = bitmap.getConfig();
+    if((config != SkBitmap::kA8_Config) && (config != SkBitmap::kARGB_4444_Config) && (config != SkBitmap::kARGB_8888_Config) && (config != SkBitmap::kRGB_565_Config))
+        fData.addCompressedBitmap();
     addDraw(DRAW_BITMAP_RECT);
     addPaintPtr(paint);
     addBitmap(bitmap);
