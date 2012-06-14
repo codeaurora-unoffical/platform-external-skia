@@ -59,6 +59,6 @@ LOCAL_C_INCLUDES := \
 LOCAL_SHARED_LIBRARIES := \
         libskia libcutils
 
-LOCAL_MODULE_TAGS := eng tests
+LOCAL_MODULE_TAGS := debug tests
 
 include $(BUILD_EXECUTABLE)
