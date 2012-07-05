@@ -5,6 +5,8 @@
     #include "BenchSysTimer_mach.h"
 #elif defined(SK_BUILD_FOR_UNIX)
     #include "BenchSysTimer_posix.h"
+#elif defined(ANDROID)
+    #include "BenchSysTimer_posix.h"
 #else
     #include "BenchSysTimer_c.h"
 #endif
