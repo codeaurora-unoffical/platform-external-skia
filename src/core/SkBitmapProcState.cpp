@@ -1,7 +1,7 @@
 
 /*
- * Original file from Android Open source project, modified by Code Aurora Forum
- * Copyright (c) 2010, Code Aurora Forum. All rights reserved.
+ * Original file from Android Open source project, modified by The Linux Foundation
+ * Copyright (c) 2010, The Linux Foundation. All rights reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
