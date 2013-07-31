@@ -610,6 +610,12 @@ SkBitmapProcState::ShaderProc32 SkBitmapProcState::chooseShaderProc32() {
     return NULL;
 }
 
+void SkBitmapProcState::beginRect(int x, int y, int width, int height) {
+}
+
+void SkBitmapProcState::endRect() {
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifdef SK_DEBUG
