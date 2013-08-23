@@ -52,6 +52,17 @@ ifeq ($(ARCH_ARM_HAVE_NEON),true)
 	LOCAL_CFLAGS += -D__ARM_HAVE_NEON
 endif
 
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+        LOCAL_CFLAGS += -DREVERIE
+endif
+
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+        LOCAL_LDFLAGS := $(PRODUCT_RENDERING_ENGINE_REVLOAD)
+        LOCAL_LDFLAGS += $(PRODUCT_RENDERING_ENGINE_REVLIB)
+endif
+
+
+
 # using freetype's embolden allows us to adjust fake bold settings at
 # draw-time, at which point we know which SkTypeface is being drawn
 LOCAL_CFLAGS += -DSK_USE_FREETYPE_EMBOLDEN
@@ -330,6 +341,8 @@ LOCAL_SRC_FILES:= \
 #	src/utils/SkBitmapChecksummer.cpp \
 #	src/utils/SkCityHash.cpp \
 
+
+
 # maps to the 'skgr' gyp target
 LOCAL_SRC_FILES += \
 	src/gpu/SkGpuDevice.cpp \
@@ -500,6 +513,12 @@ LOCAL_C_INCLUDES := \
 	frameworks/base/opengl/include \
 	frameworks/opt/emoji \
 	external/expat/lib
+
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+LOCAL_C_INCLUDES += \
+        $(PRODUCT_RENDERING_ENGINE_PATH)
+endif
+
 
 LOCAL_EXPORT_C_INCLUDES := \
 	$(LOCAL_PATH)/include/core \
