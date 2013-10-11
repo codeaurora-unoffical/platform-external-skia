@@ -761,17 +761,16 @@ protected:
     }
 
 #ifdef REVERIE
-
     virtual uint16_t * generateCharsToGlyphs(SkUnichar *uni,int index,uint32_t no_of_chars,uint32_t * no_of_glyphs){
         return NULL;
     }
     virtual int  getGidClass(uint16_t Gid){
-                return 0;
+        return 0;
     }
     virtual int GetX_Y_Anchor(uint16_t baseId,uint16_t markId,int *x,int *y,int flag){
         *x=*y=0;
         return 0;
-   }
+    }
 #endif
 
     virtual void generateImage(const SkGlyph& glyph) SK_OVERRIDE {}
