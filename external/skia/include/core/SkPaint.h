@@ -794,18 +794,18 @@ public:
     int textToGlyphs(const void* text, size_t byteLength,
                      uint16_t glyphs[]) const;
 
-    #ifdef REVERIE
-        uint16_t * getGlyphIDs(const char text[],size_t byteLength,uint32_t * NoOfIds)const;
-        SkUnichar glyphToUnichar(uint16_t Gid)const;
-	uint16_t unicharToGlyph(SkUnichar glyph)const;
-        int textIsUnicode(const char text[], int byteLength,int *flag)const;
+#ifdef REVERIE
+    uint16_t * getGlyphIDs(const char text[],size_t byteLength,uint32_t * NoOfIds)const;
+    SkUnichar glyphToUnichar(uint16_t Gid)const;
+    uint16_t unicharToGlyph(SkUnichar glyph)const;
+    int textIsUnicode(const char text[], int byteLength,int *flag)const;
 
-        int textIsArabic(const char text[], int byteLength)const;
+    int textIsArabic(const char text[], int byteLength)const;
 
-        uint16_t * getsylend(const char text[],size_t byteLength,uint32_t * NoOfSyllables)const;
-        int getXYPos(uint16_t Gid1, uint16_t Gid2, uint16_t Gid3, int noOfGid, int * x, int *y);
+    uint16_t * getsylend(const char text[],size_t byteLength,uint32_t * NoOfSyllables)const;
+    int getXYPos(uint16_t Gid1, uint16_t Gid2, uint16_t Gid3, int noOfGid, int * x, int *y);
 
-    #endif
+#endif
 
 
     /** Return true if all of the specified text has a corresponding non-zero
