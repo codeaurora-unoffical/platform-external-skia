@@ -1770,14 +1770,14 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkDraw1Glyph        d1g;
     SkDraw1Glyph::Proc  proc = d1g.init(this, blitter, cache);
 
-	#ifdef REVERIE  
-        int flag;
-        if(paint.textIsUnicode(text,(unsigned int)byteLength,&flag))
-        {
-                drawAdd(text, paint, byteLength, d1g, proc, cache, fx, fy, autokern);
-        }
-        else
-        #endif
+#ifdef REVERIE  
+    int flag;
+    if(paint.textIsUnicode(text,(unsigned int)byteLength,&flag))
+    {
+        drawAdd(text, paint, byteLength, d1g, proc, cache, fx, fy, autokern);
+    }
+    else
+#endif
 
 
     while (text < stop) {
@@ -1931,24 +1931,22 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
 
 
-	#ifdef REVERIE
-        uint16_t space = cache->unicharToGlyph(0x0915);
-        const SkGlyph& glph  = cache->getGlyphIDMetrics(space, 0, 0);
-        tmsProc(tms, pos);
+#ifdef REVERIE
+    uint16_t space = cache->unicharToGlyph(0x0915);
+    const SkGlyph& glph  = cache->getGlyphIDMetrics(space, 0, 0);
+    tmsProc(tms, pos);
+    SkIPoint fixedLoc;
+    alignProc(tms.fLoc, glph, &fixedLoc);
+    SkFixed fx = fixedLoc.fX + SK_FixedHalf;
+    SkFixed fy = fixedLoc.fY + SK_FixedHalf;
 
-        SkIPoint fixedLoc;
-        alignProc(tms.fLoc, glph, &fixedLoc);
-        SkFixed fx = fixedLoc.fX + SK_FixedHalf;
-        SkFixed fy = fixedLoc.fY + SK_FixedHalf;
-
-        int flag;
-        if(paint.textIsUnicode(text,(unsigned int)byteLength,&flag))
-        {
-                drawAdd1(text, paint, byteLength, d1g, proc, cache, fx, fy);
-		//__android_log_print(ANDROID_LOG_ERROR,"SkDraw :: ","In drawPosText Text ends\n");
-        }
-        else
-        #endif
+    int flag;
+    if(paint.textIsUnicode(text,(unsigned int)byteLength,&flag))
+    {
+        drawAdd1(text, paint, byteLength, d1g, proc, cache, fx, fy);
+    }
+    else
+#endif
 
 
     if (cache->isSubpixel()) {
