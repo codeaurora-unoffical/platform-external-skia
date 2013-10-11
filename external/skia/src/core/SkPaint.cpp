@@ -1162,13 +1162,13 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
 
     SkAutoKern  autokern;
 
-    #ifdef REVERIE
-        int m = getPaintMText(this, cache, text, byteLength, count, bounds, joinBoundsProc, glyphCacheProc, xyIndex);
+#ifdef REVERIE
+    int m = getPaintMText(this, cache, text, byteLength, count, bounds, joinBoundsProc, glyphCacheProc, xyIndex);
         if(m > 0){
-                return m;
+            return m;
         }
         else{
-   #endif
+#endif
 
 
     if (NULL == bounds) {
@@ -1208,9 +1208,9 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     *count = n;
     return Sk48Dot16ToScalar(x);
 
-   #ifdef REVERIE
-   }
-   #endif
+#ifdef REVERIE
+    }
+#endif
 
 }
 
@@ -1453,15 +1453,13 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
 
 
-     #ifdef REVERIE
-       int width = getPaintWidth(this, text, byteLength, widths, bounds, scale, cache, glyphCacheProc, xyIndex, count);
+#ifdef REVERIE
+    int width = getPaintWidth(this, text, byteLength, widths, bounds, scale, cache, glyphCacheProc, xyIndex, count);
         if(width > 0){
-                return width;
+            return width;
         }
         else{      
-	#endif
-
-
+#endif
     if (this->isDevKernText()) {
         // we adjust the widths returned here through auto-kerning
         SkAutoKern  autokern;
@@ -1536,9 +1534,9 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     SkASSERT(text == stop);
     return count;
 
-    #ifdef REVERIE
-        }
-    #endif
+#ifdef REVERIE
+    }
+#endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
