@@ -182,6 +182,24 @@ public:
     */
     SkUnichar glyphIDToChar(uint16_t glyphID);
 
+#ifdef REVERIE
+    // reverie add
+    uint16_t * charsToGlyphIDs(SkUnichar *uni,uint32_t no_of_chars,uint32_t * no_of_glyphs);
+    // reverie add
+    SkScalerContext * getContext(SkUnichar uni);
+    // reverie add
+    uint16_t getBaseGlyphCountR(SkUnichar uni);
+    // reverie add
+    uint16_t getTotalGlyphCount(SkUnichar uni);
+    // reverie add
+    int getClass(uint16_t Gid);
+    // reverie add
+    int get_Position(uint16_t baseId,uint16_t markId,int *x,int *y,int flag);
+
+    uint16_t *charsToSylEnds(SkUnichar *uni,uint32_t no_of_chars,uint32_t * no_of_sylends);
+
+#endif
+
     unsigned    getGlyphCount() { return this->generateGlyphCount(); }
     void        getAdvance(SkGlyph*);
     void        getMetrics(SkGlyph*);
@@ -221,6 +239,14 @@ protected:
     virtual SkUnichar generateGlyphToChar(uint16_t);
 
     void forceGenerateImageFromPath() { fGenerateImageFromPath = true; }
+
+#ifdef REVERIE
+    virtual uint16_t * generateCharsToGlyphs(SkUnichar *,int,uint32_t,uint32_t *) = 0;
+    virtual int  getGidClass(uint16_t) = 0;
+    virtual int GetX_Y_Anchor(uint16_t baseId,uint16_t markId,int *x,int *y,int flag) = 0;
+#endif
+
+
 
 private:
     SkScalerContext* getContextFromChar(SkUnichar uni, unsigned& glyphID);
