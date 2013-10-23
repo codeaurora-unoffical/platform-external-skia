@@ -56,7 +56,11 @@ static inline __attribute__((always_inline)) void sk_membar_aquire__after_atomic
 /* The platform atomics operations are slightly more efficient than the
  * GCC built-ins, so use them.
  */
+#ifdef _ANDROID_
 #include <utils/Atomic.h>
+#else
+#include <cutils/atomic.h>
+#endif
 
 #define sk_atomic_inc(addr)         android_atomic_inc(addr)
 #define sk_atomic_add(addr, inc)    android_atomic_add(inc, addr)
