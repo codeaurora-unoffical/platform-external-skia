@@ -843,6 +843,7 @@ public:
     	size_t byteLength,uint32_t * NoOfSyllables)const;
     int getXYPos(uint16_t Gid1, uint16_t Gid2, uint16_t Gid3, 
     	int noOfGid, int * x, int *y);
+
 #endif
 
     /** Return true if all of the specified text has a corresponding non-zero

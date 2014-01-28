@@ -2047,8 +2047,8 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     {
     	drawAdd1(text, paint, byteLength, d1g, proc, cache, fx, fy);
     }
-    else
-#endif
+        else
+        #endif
 
 
     if (cache->isSubpixel()) {

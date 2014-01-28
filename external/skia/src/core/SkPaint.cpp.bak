@@ -1595,9 +1595,9 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     SkASSERT(text == stop);
     return count;
 
-#ifdef REVERIE
-    }
-#endif
+    #ifdef REVERIE
+        }
+    #endif
 }
 
 ///////////////////////////////////////////////////////////////////////////////
