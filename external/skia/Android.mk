@@ -563,7 +563,7 @@ LOCAL_STATIC_LIBRARIES := \
 
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
-LOCAL_LDFLAGS += vendor/qcom/proprietary/qrdplus/globalization/engine/revlib.a
+LOCAL_LDFLAGS += $(PRODUCT_RENDERING_ENGINE_REVLIB)
 endif
 
 
@@ -603,7 +603,7 @@ LOCAL_C_INCLUDES := \
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
 LOCAL_C_INCLUDES += \
-        vendor/qcom/proprietary/qrdplus/globalization/engine
+        $(PRODUCT_RENDERING_ENGINE_PATH)
 endif
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
