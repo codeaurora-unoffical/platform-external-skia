@@ -1836,7 +1836,7 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     int flag;
     if(paint.textIsUnicode(cache,text,(unsigned int)byteLength,&flag))
     {
-    	drawAdd(text, paint, byteLength, d1g, proc, cache, fx, fy, 
+    	drawAdd(text, paint, byteLength, d1g, proc, cache, fx, fy,
     		autokern);
     }
     else
