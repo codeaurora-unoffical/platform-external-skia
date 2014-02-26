@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -1236,10 +1235,10 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
     SkAutoKern  autokern;
 
 #ifdef REVERIE
-    int m = getPaintMText(this, cache, text, byteLength, count, 
+    int m = getPaintMText(this, cache, text, byteLength, count,
     	bounds, joinBoundsProc, glyphCacheProc, xyIndex);
     if(m > 0){
-                return m;
+        return m;
     }
     else{
 #endif
