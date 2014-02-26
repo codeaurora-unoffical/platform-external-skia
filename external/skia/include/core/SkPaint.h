@@ -1,5 +1,4 @@
 
-
 /*
  * Copyright 2006 The Android Open Source Project
  *
@@ -835,13 +834,13 @@ public:
     	uint32_t * NoOfIds)const;
     SkUnichar glyphToUnichar(uint16_t Gid)const;
     uint16_t unicharToGlyph(SkUnichar glyph)const;
-    int textIsUnicode(SkGlyphCache*cache,const char text[], 
+    int textIsUnicode(SkGlyphCache*cache,const char text[],
     	int byteLength,int *flag)const;
     int textIsUnicode(const char text[], int byteLength,int *flag)const;
     int textIsArabic(const char text[], int byteLength)const;
     uint16_t * getsylend(SkGlyphCache*cache,const char text[],
     	size_t byteLength,uint32_t * NoOfSyllables)const;
-    int getXYPos(uint16_t Gid1, uint16_t Gid2, uint16_t Gid3, 
+    int getXYPos(uint16_t Gid1, uint16_t Gid2, uint16_t Gid3,
     	int noOfGid, int * x, int *y);
 #endif
 
