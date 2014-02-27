@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkBitmap.h"
 #include "SkCanvas.h"
 #include "SkColorPriv.h"

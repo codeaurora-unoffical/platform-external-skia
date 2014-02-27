@@ -5,6 +5,7 @@
  * found in the LICENSE file.
  */
 
+
 #ifndef SkScalerContext_DEFINED
 #define SkScalerContext_DEFINED
 

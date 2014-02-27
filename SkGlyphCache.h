@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkGlyphCache_DEFINED
 #define SkGlyphCache_DEFINED
 

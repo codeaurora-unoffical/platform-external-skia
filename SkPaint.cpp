@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkPaint.h"
 #include "SkAnnotation.h"
 #include "SkAutoKern.h"

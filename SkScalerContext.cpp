@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkScalerContext.h"
 #include "SkColorPriv.h"
 #include "SkDescriptor.h"

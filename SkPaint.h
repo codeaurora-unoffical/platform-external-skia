@@ -6,7 +6,6 @@
  * found in the LICENSE file.
  */
 
-
 #ifndef SkPaint_DEFINED
 #define SkPaint_DEFINED
 

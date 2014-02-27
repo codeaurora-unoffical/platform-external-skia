@@ -5,7 +5,6 @@
  * found in the LICENSE file.
  */
 
-
 #include "SkDraw.h"
 #include "SkBlitter.h"
 #include "SkBounder.h"
