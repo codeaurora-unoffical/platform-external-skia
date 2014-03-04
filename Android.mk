@@ -71,6 +71,10 @@ ifeq ($(NO_FALLBACK_FONT),true)
 	LOCAL_CFLAGS += -DNO_FALLBACK_FONT
 endif
 
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+LOCAL_CFLAGS += -DREVERIE
+endif
+
 # IMPORTANT: The build order of the SkImageDecoder_*.cpp files
 # defines the order image decoders are tested when decoding a
 # stream. The last decoder is the first one tested, so the .cpp
@@ -556,6 +560,10 @@ LOCAL_STATIC_LIBRARIES := \
 	libwebp-decode \
 	libwebp-encode
 
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+LOCAL_LDFLAGS += $(PRODUCT_RENDERING_ENGINE_REVLIB)
+endif
+
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 	LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
 endif
@@ -589,6 +597,11 @@ LOCAL_C_INCLUDES := \
 	external/webp/include \
 	frameworks/base/opengl/include \
 	external/expat/lib
+
+ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+LOCAL_C_INCLUDES += \
+        $(PRODUCT_RENDERING_ENGINE_PATH)
+endif
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
 	$(LOCAL_PATH)/include/config \
