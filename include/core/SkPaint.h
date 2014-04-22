@@ -828,6 +828,24 @@ public:
     int textToGlyphs(const void* text, size_t byteLength,
                      uint16_t glyphs[]) const;
 
+
+#ifdef REVERIE
+    uint16_t * getGlyphIDs(SkGlyphCache*cache,const char text[],
+        size_t byteLength,uint32_t * NoOfIds)const;
+    uint16_t * getGlyphIDs(const char text[],size_t byteLength,
+        uint32_t * NoOfIds)const;
+    SkUnichar glyphToUnichar(uint16_t Gid)const;
+    uint16_t unicharToGlyph(SkUnichar glyph)const;
+    int textIsUnicode(SkGlyphCache*cache,const char text[],
+        int byteLength,int *flag)const;
+    int textIsUnicode(const char text[], int byteLength,int *flag)const;
+    int textIsArabic(const char text[], int byteLength)const;
+    uint16_t * getsylend(SkGlyphCache*cache,const char text[],
+        size_t byteLength,uint32_t * NoOfSyllables)const;
+    int getXYPos(uint16_t Gid1, uint16_t Gid2, uint16_t Gid3,
+        int noOfGid, int * x, int *y);
+#endif
+
     /** Return true if all of the specified text has a corresponding non-zero
         glyph ID. If any of the code-points in the text are not supported in
         the typeface (i.e. the glyph ID would be zero), then return false.
