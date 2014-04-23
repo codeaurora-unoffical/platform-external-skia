@@ -560,10 +560,6 @@ LOCAL_STATIC_LIBRARIES := \
 	libwebp-decode \
 	libwebp-encode
 
-ifeq ($(MULTI_LANG_ENGINE),REVERIE)
-LOCAL_LDFLAGS += $(PRODUCT_RENDERING_ENGINE_REVLIB)
-endif
-
 ifeq ($(BOARD_USES_QCOM_HARDWARE),true)
 	LOCAL_WHOLE_STATIC_LIBRARIES += libqc-skia
 endif
@@ -599,8 +595,7 @@ LOCAL_C_INCLUDES := \
 	external/expat/lib
 
 ifeq ($(MULTI_LANG_ENGINE),REVERIE)
-LOCAL_C_INCLUDES += \
-        $(PRODUCT_RENDERING_ENGINE_PATH)
+        LOCAL_STATIC_LIBRARIES += revlib
 endif
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
