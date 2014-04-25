@@ -35,6 +35,9 @@
 #include "SkTypeface.h"
 #include "SkXfermode.h"
 
+#ifdef REVERIE
+#include "revSkUtils.h"
+#endif
 
 // define this to get a printf for out-of-range parameter in setters
 // e.g. setTextSize(-1)
@@ -1231,6 +1234,15 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
 
     SkAutoKern  autokern;
 
+#ifdef REVERIE
+    int m = getPaintMText(this, cache, text, byteLength, count,
+        bounds, joinBoundsProc, glyphCacheProc, xyIndex);
+    if(m > 0){
+        return m;
+    }
+    else{
+#endif
+
     if (NULL == bounds) {
         if (this->isDevKernText()) {
             int rsb;
@@ -1267,6 +1279,11 @@ SkScalar SkPaint::measure_text(SkGlyphCache* cache,
 
     *count = n;
     return Sk48Dot16ToScalar(x);
+
+#ifdef REVERIE
+   }
+#endif
+
 }
 
 SkScalar SkPaint::measureText(const void* textData, size_t length,
@@ -1493,6 +1510,15 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
     int         count = 0;
     const int   xyIndex = paint.isVerticalText() ? 1 : 0;
 
+#ifdef REVERIE
+    int width = getPaintWidth(this, text, byteLength, widths, bounds,
+        scale, cache, glyphCacheProc, xyIndex, count);
+    if(width > 0){
+        return width;
+    }
+    else{
+#endif
+
     if (this->isDevKernText()) {
         // we adjust the widths returned here through auto-kerning
         SkAutoKern  autokern;
@@ -1567,6 +1593,11 @@ int SkPaint::getTextWidths(const void* textData, size_t byteLength,
 
     SkASSERT(text == stop);
     return count;
+
+#ifdef REVERIE
+    }
+#endif
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////
