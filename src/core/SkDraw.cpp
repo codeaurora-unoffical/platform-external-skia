@@ -32,6 +32,10 @@
 #include "SkDrawProcs.h"
 #include "SkMatrixUtils.h"
 
+#ifdef REVERIE
+#include "revSkUtils.h"
+#endif
+
 bool SkDraw::ShouldDrawTextAsPaths(const SkPaint& paint, const SkMatrix& ctm) {
     // we don't cache hairlines in the cache
     if (SkPaint::kStroke_Style == paint.getStyle() &&
@@ -1825,6 +1829,16 @@ void SkDraw::drawText(const char text[], size_t byteLength,
     SkFixed fx = SkScalarToFixed(x) + d1g.fHalfSampleX;
     SkFixed fy = SkScalarToFixed(y) + d1g.fHalfSampleY;
 
+#ifdef REVERIE
+    int flag;
+    if(paint.textIsUnicode(cache,text,(unsigned int)byteLength,&flag))
+    {
+        drawAdd(text, paint, byteLength, d1g, proc, cache, fx, fy,
+            autokern);
+    }
+    else
+#endif
+
     while (text < stop) {
         const SkGlyph& glyph = glyphCacheProc(cache, &text, fx & fxMask, fy & fyMask);
 
@@ -2013,6 +2027,24 @@ void SkDraw::drawPosText(const char text[], size_t byteLength,
     SkDraw1Glyph::Proc proc = d1g.init(this, blitter, cache, paint);
     TextMapState       tms(*fMatrix, constY);
     TextMapState::Proc tmsProc = tms.pickProc(scalarsPerPosition);
+
+#ifdef REVERIE
+    uint16_t space = cache->unicharToGlyph(0x0915);
+    const SkGlyph& glph  = cache->getGlyphIDMetrics(space, 0, 0);
+    tmsProc(tms, pos);
+
+    SkIPoint fixedLoc;
+    alignProc(tms.fLoc, glph, &fixedLoc);
+    SkFixed fx = fixedLoc.fX + SK_FixedHalf;
+    SkFixed fy = fixedLoc.fY + SK_FixedHalf;
+
+    int flag;
+    if(paint.textIsUnicode(cache,text,(unsigned int)byteLength,&flag))
+    {
+        drawAdd1(text, paint, byteLength, d1g, proc, cache, fx, fy);
+    }
+    else
+#endif
 
     if (cache->isSubpixel()) {
         // maybe we should skip the rounding if linearText is set
