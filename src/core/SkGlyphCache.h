@@ -76,6 +76,16 @@ public:
     */
     unsigned getGlyphCount();
 
+#ifdef REVERIE
+    uint16_t * unicharsToGlyphs(SkUnichar *charCode,
+     uint32_t no_of_charcodes,uint32_t *no_of_glyphs);
+    uint16_t getBaseGlyphCountR(SkUnichar charcode);
+    SkScalerContext * getContext(SkUnichar charcode);
+    uint16_t getTotalGlyphCount(SkUnichar charcode);
+    uint16_t * unicharsToSyllableEnds(SkUnichar *charCode,
+    uint32_t no_of_charcodes,uint32_t *no_of_syllableEnds);
+#endif
+
 #ifdef SK_BUILD_FOR_ANDROID
     /** Returns the base glyph count for this strike.
     */
