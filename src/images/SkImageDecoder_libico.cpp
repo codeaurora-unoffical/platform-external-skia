@@ -150,14 +150,20 @@ bool SkICOImageDecoder::onDecode(SkStream* stream, SkBitmap* bm, Mode mode)
     //int fakeBitCount = read2Bytes(buf, 12 + choice*16); //should be real - usually 0
     int size = read4Bytes(buf, 14 + choice*16);           //matters?
     int offset = read4Bytes(buf, 18 + choice*16);
-    if ((size_t)(offset + size) > length)
+    // promote the sum to 64-bits to avoid overflow
+    if (((uint64_t)offset + size) > length) {
         return false;
+    }
 
     // Check to see if this is a PNG image inside the ICO
     {
         SkMemoryStream subStream(buf + offset, size, false);
         SkAutoTDelete<SkImageDecoder> otherDecoder(SkImageDecoder::Factory(&subStream));
         if (otherDecoder.get() != NULL) {
+            // Disallow nesting ICO files within one another
+            if (otherDecoder->getFormat() == SkImageDecoder::kICO_Format) {
+                return false;
+            }
             // Set fields on the other decoder to be the same as this one.
             this->copyFieldsToOther(otherDecoder.get());
             if(otherDecoder->decode(&subStream, bm, this->getDefaultPref(), mode)) {
