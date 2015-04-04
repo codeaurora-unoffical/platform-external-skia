@@ -11,7 +11,7 @@
 #include "SkPixelRef.h"
 #include "SkErrorInternals.h"
 #include "SkBitmapProcShader.h"
-
+#include "SkUtilsArm.h"
 #if SK_SUPPORT_GPU
 #include "effects/GrSimpleTextureEffect.h"
 #include "effects/GrBicubicEffect.h"
@@ -236,7 +236,7 @@ void SkBitmapProcShader::BitmapProcShaderContext::shadeSpan(int x, int y, SkPMCo
     if (state.getShaderProc32()) {
 #if !SK_ARM_NEON_IS_NONE
 #if !defined(__LP64__)
-        if (state.getShaderProc32() == Clamp_S32_Opaque_D32_filter_DX_shaderproc_neon) {
+        if (state.getShaderProc32() == SK_ARM_NEON_WRAP(Clamp_S32_Opaque_D32_filter_DX_shaderproc)) {
             if (checkDecal(state, x, y, count)) {
                 state.getShaderProc32()(state, x, y, dstC, count);
                 return;
