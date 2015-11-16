@@ -115,31 +115,6 @@ void SI8_D16_nofilter_DX_arm(const SkBitmapProcState& s,
     otherwise the shader won't even look at the matrix/sampler
  */
 void SkBitmapProcState::platformProcs() {
-    bool isOpaque = 256 == fAlphaScale;
-    bool justDx = false;
-
-    if (fInvType <= (SkMatrix::kTranslate_Mask | SkMatrix::kScale_Mask)) {
-        justDx = true;
-    }
-
-    switch (fBitmap->config()) {
-        case SkBitmap::kIndex8_Config:
-#if SK_ARM_ARCH >= 6 && !defined(SK_CPU_BENDIAN)
-            if (justDx && SkPaint::kNone_FilterLevel == fFilterLevel) {
-#if 0   /* crashing on android device */
-                fSampleProc16 = SI8_D16_nofilter_DX_arm;
-                fShaderProc16 = NULL;
-#endif
-                if (isOpaque) {
-                    fSampleProc32 = NULL;
-                    fShaderProc32 = NULL;
-                }
-            }
-#endif
-            break;
-        default:
-            break;
-    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
