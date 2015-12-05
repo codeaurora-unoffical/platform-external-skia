@@ -356,9 +356,7 @@ LOCAL_SRC_FILES := \
 LOCAL_SHARED_LIBRARIES := \
 	liblog \
 	libskia \
-	libandroid \
 	libgui \
-	libhwui \
 	libutils \
 	libGLESv2 \
 	libEGL
