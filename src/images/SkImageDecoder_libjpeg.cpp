@@ -241,7 +241,11 @@ protected:
     bool onBuildTileIndex(SkStreamRewindable *stream, int *width, int *height) override;
     bool onDecodeSubset(SkBitmap* bitmap, const SkIRect& rect) override;
 #endif
+#ifdef QC_SK_BUILD_ENABLE_DECODE
     Result onDecode(SkStream* stream, SkBitmap* bm, Mode) override __attribute__((weak));
+#else
+    Result onDecode(SkStream* stream, SkBitmap* bm, Mode) override;
+#endif
     bool onDecodeYUV8Planes(SkStream* stream, SkISize componentSizes[3],
                             void* planes[3], size_t rowBytes[3],
                             SkYUVColorSpace* colorSpace) override;
