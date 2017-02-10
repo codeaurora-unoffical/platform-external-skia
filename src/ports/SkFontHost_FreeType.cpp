@@ -197,13 +197,13 @@ protected:
                                      SkPaint::FontMetrics* my) SK_OVERRIDE;
     virtual SkUnichar generateGlyphToChar(uint16_t glyph) SK_OVERRIDE;
 
-#ifdef REVERIE
+/*#ifdef REVERIE
     virtual uint16_t * generateCharsToGlyphs(SkUnichar *uni,int index,
         uint32_t no_of_chars,uint32_t * no_of_glyphs);
     virtual int  getGidClass(uint16_t Gid);
     virtual int GetX_Y_Anchor(uint16_t baseId,uint16_t markId,int *x,
         int *y,int flag);
-#endif
+#endif*/
 
 private:
     SkFaceRec*  fFaceRec;
@@ -1124,7 +1124,7 @@ SkUnichar SkScalerContext_FreeType::generateGlyphToChar(uint16_t glyph) {
     return 0;
 }
 
-#ifdef REVERIE
+/*#ifdef REVERIE
 uint16_t * SkScalerContext_FreeType::generateCharsToGlyphs(SkUnichar *uni,
     int index,uint32_t no_of_chars,uint32_t * no_of_glyphs) {
     return (uint16_t *)(FT_Get_Chars_Indices( fFace, (FT_UInt32 *)uni,index,no_of_chars ,no_of_glyphs));
@@ -1138,7 +1138,7 @@ int SkScalerContext_FreeType::GetX_Y_Anchor(uint16_t baseId,
     uint16_t markId,int *x,int *y,int flag){
     return FT_Get_Position(fFace,baseId,markId,x,y,flag);
 }
-#endif
+#endif*/
 
 void SkScalerContext_FreeType::generateAdvance(SkGlyph* glyph) {
 #ifdef FT_ADVANCES_H

@@ -67,9 +67,9 @@ ifeq ($(NO_FALLBACK_FONT),true)
 	LOCAL_CFLAGS += -DNO_FALLBACK_FONT
 endif
 
-ifeq ($(MULTI_LANG_ENGINE),REVERIE)
-LOCAL_CFLAGS += -DREVERIE
-endif
+#ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+#LOCAL_CFLAGS += -DREVERIE
+#endif
 
 # IMPORTANT: The build order of the SkImageDecoder_*.cpp files
 # defines the order image decoders are tested when decoding a
@@ -607,9 +607,9 @@ LOCAL_C_INCLUDES := \
 	frameworks/base/opengl/include \
 	external/expat/lib
 
-ifeq ($(MULTI_LANG_ENGINE),REVERIE)
-        LOCAL_STATIC_LIBRARIES += revlib
-endif
+#ifeq ($(MULTI_LANG_ENGINE),REVERIE)
+#        LOCAL_STATIC_LIBRARIES += revlib
+#endif
 
 LOCAL_EXPORT_C_INCLUDE_DIRS := \
 	$(LOCAL_PATH)/include/config \
