@@ -628,6 +628,9 @@ DEF_TEST(Codec_Empty, r) {
     test_invalid(r, "empty_images/zero-height.wbmp");
     // This image is an ico with an embedded mask-bmp.  This is illegal.
     test_invalid(r, "invalid_images/mask-bmp-ico.ico");
+#if defined(SK_CODEC_DECODES_RAW) && (!defined(_WIN32))
+    test_invalid(r, "empty_images/zero_height.tiff");
+#endif
 }
 
 static void test_invalid_parameters(skiatest::Reporter* r, const char path[]) {
@@ -970,4 +973,33 @@ DEF_TEST(Codec_wbmp_max_size, r) {
     codec.reset(SkCodec::NewFromStream(stream.detach()));
 
     REPORTER_ASSERT(r, !codec);
+}
+
+DEF_TEST(Codec_jpeg_rewind, r) {
+    const char* path = "mandrill_512_q075.jpg";
+    SkAutoTDelete<SkStream> stream(resource(path));
+    if (!stream) {
+        SkDebugf("Missing resource '%s'\n", path);
+        return;
+    }
+    SkAutoTDelete<SkAndroidCodec> codec(SkAndroidCodec::NewFromStream(stream.release()));
+    if (!codec) {
+        ERRORF(r, "Unable to create codec '%s'.", path);
+        return;
+    }
+
+    const int width = codec->getInfo().width();
+    const int height = codec->getInfo().height();
+    size_t rowBytes = sizeof(SkPMColor) * width;
+    SkAutoMalloc pixelStorage(height * rowBytes);
+
+    // Perform a sampled decode.
+    SkAndroidCodec::AndroidOptions opts;
+    opts.fSampleSize = 12;
+    codec->getAndroidPixels(codec->getInfo().makeWH(width / 12, height / 12), pixelStorage.get(),
+                            rowBytes, &opts);
+
+    // Rewind the codec and perform a full image decode.
+    SkCodec::Result result = codec->getPixels(codec->getInfo(), pixelStorage.get(), rowBytes);
+    REPORTER_ASSERT(r, SkCodec::kSuccess == result);
 }
