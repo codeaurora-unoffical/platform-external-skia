@@ -838,9 +838,10 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return fHelper.fixedFunctionFlags(); }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
-        return fHelper.finalizeProcessors(caps, clip, GrProcessorAnalysisCoverage::kSingleChannel,
-                                          &fColor);
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      GrFSAAType fsaaType, GrClampType clampType) override {
+        return fHelper.finalizeProcessors(caps, clip, fsaaType, clampType,
+                                          GrProcessorAnalysisCoverage::kSingleChannel, &fColor);
     }
 
 private:

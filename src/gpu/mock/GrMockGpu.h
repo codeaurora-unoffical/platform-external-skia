@@ -54,6 +54,12 @@ private:
 
     void onResetContext(uint32_t resetBits) override {}
 
+    void querySampleLocations(
+            GrRenderTarget*, const GrStencilSettings&, SkTArray<SkPoint>*) override {
+        SkASSERT(!this->caps()->sampleLocationsSupport());
+        SK_ABORT("Sample locations not implemented for mock GPU.");
+    }
+
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc&, SkBudgeted, const GrMipLevel[],
@@ -100,7 +106,14 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    void onFinishFlush(bool insertedSemaphores) override {}
+    void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+                       GrFlushFlags flags, bool insertedSemaphores,
+                       GrGpuFinishedProc finishedProc,
+                       GrGpuFinishedContext finishedContext) override {
+        if (finishedProc) {
+            finishedProc(finishedContext);
+        }
+    }
 
     GrStencilAttachment* createStencilAttachmentForRenderTarget(const GrRenderTarget*,
                                                                 int width,

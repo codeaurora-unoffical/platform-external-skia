@@ -111,7 +111,8 @@ public:
 
         const char* name() const override { return "LazyProxyTest::Op"; }
         FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-        GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*) override {
+        GrProcessorSet::Analysis finalize(
+                const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
             return GrProcessorSet::EmptySetAnalysis();
         }
         void onPrepare(GrOpFlushState*) override {}
@@ -354,7 +355,8 @@ private:
 
     const char* name() const override { return "LazyFailedInstantiationTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrepare(GrOpFlushState*) override {}
@@ -429,7 +431,8 @@ private:
 
     const char* name() const override { return "LazyDeinstantiateTestOp"; }
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
     void onPrepare(GrOpFlushState*) override {}

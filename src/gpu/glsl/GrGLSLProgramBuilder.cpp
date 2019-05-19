@@ -29,8 +29,7 @@ GrGLSLProgramBuilder::GrGLSLProgramBuilder(GrRenderTarget* renderTarget, GrSurfa
         , fGS(this)
         , fFS(this)
         , fStageIndex(-1)
-        , fConfig(renderTarget->config())
-        , fNumColorSamples(renderTarget->numColorSamples())
+        , fRenderTarget(renderTarget)
         , fOrigin(origin)
         , fPipeline(pipeline)
         , fPrimProc(primProc)
@@ -254,11 +253,22 @@ void GrGLSLProgramBuilder::emitAndInstallXferProc(const SkString& colorIn,
         SkASSERT(dstTexture->texturePriv().textureType() != GrTextureType::kExternal);
     }
 
+    SkString finalInColor;
+    if (colorIn.size()) {
+        if (this->desc()->header().fClampBlendInput) {
+            finalInColor.printf("saturate(%s)", colorIn.c_str());
+        } else {
+            finalInColor = colorIn;
+        }
+    } else {
+        finalInColor = "float4(1)";
+    }
+
     GrGLSLXferProcessor::EmitArgs args(&fFS,
                                        this->uniformHandler(),
                                        this->shaderCaps(),
                                        xp,
-                                       colorIn.size() ? colorIn.c_str() : "float4(1)",
+                                       finalInColor.c_str(),
                                        coverageIn.size() ? coverageIn.c_str() : "float4(1)",
                                        fFS.getPrimaryColorOutputName(),
                                        fFS.getSecondaryColorOutputName(),
@@ -306,13 +316,18 @@ bool GrGLSLProgramBuilder::checkSamplerCounts() {
 
 #ifdef SK_DEBUG
 void GrGLSLProgramBuilder::verify(const GrPrimitiveProcessor& gp) {
-}
-
-void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
-    SkASSERT(fFS.hasReadDstColor() == xp.willReadDstColor());
+    SkASSERT(!fFS.fHasReadDstColorThisStage_DebugOnly);
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == gp.requestedFeatures());
 }
 
 void GrGLSLProgramBuilder::verify(const GrFragmentProcessor& fp) {
+    SkASSERT(!fFS.fHasReadDstColorThisStage_DebugOnly);
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == fp.requestedFeatures());
+}
+
+void GrGLSLProgramBuilder::verify(const GrXferProcessor& xp) {
+    SkASSERT(xp.willReadDstColor() == fFS.fHasReadDstColorThisStage_DebugOnly);
+    SkASSERT(fFS.fUsedProcessorFeaturesThisStage_DebugOnly == xp.requestedFeatures());
 }
 #endif
 
@@ -353,18 +368,16 @@ void GrGLSLProgramBuilder::addRTWidthUniform(const char* name) {
         SkASSERT(!fUniformHandles.fRTWidthUni.isValid());
         GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
         fUniformHandles.fRTWidthUni =
-            uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag,
-                                                    kHalf_GrSLType, kDefault_GrSLPrecision,
-                                                    name, false, 0, nullptr);
+            uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag, kHalf_GrSLType, name,
+                                                    false, 0, nullptr);
 }
 
 void GrGLSLProgramBuilder::addRTHeightUniform(const char* name) {
         SkASSERT(!fUniformHandles.fRTHeightUni.isValid());
         GrGLSLUniformHandler* uniformHandler = this->uniformHandler();
         fUniformHandles.fRTHeightUni =
-            uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag,
-                                                    kHalf_GrSLType, kDefault_GrSLPrecision,
-                                                    name, false, 0, nullptr);
+            uniformHandler->internalAddUniformArray(kFragment_GrShaderFlag, kHalf_GrSLType, name,
+                                                    false, 0, nullptr);
 }
 
 void GrGLSLProgramBuilder::finalizeShaders() {

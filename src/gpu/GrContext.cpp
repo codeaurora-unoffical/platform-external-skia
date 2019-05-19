@@ -70,9 +70,8 @@ bool GrContext::init(sk_sp<const GrCaps> caps, sk_sp<GrSkSLFPFactoryCache> FPFac
         return false;
     }
 
-    SkASSERT(this->drawingManager());
     SkASSERT(this->caps());
-    SkASSERT(this->getGlyphCache());
+    SkASSERT(this->getGrStrikeCache());
     SkASSERT(this->getTextBlobCache());
 
     if (fGpu) {
@@ -160,7 +159,7 @@ void GrContext::freeGpuResources() {
 
     // TODO: the glyph cache doesn't hold any GpuResources so this call should not be needed here.
     // Some slack in the GrTextBlob's implementation requires it though. That could be fixed.
-    this->getGlyphCache()->freeAll();
+    this->getGrStrikeCache()->freeAll();
 
     this->drawingManager()->freeGpuResources();
 
@@ -233,21 +232,42 @@ int GrContext::maxSurfaceSampleCountForColorType(SkColorType colorType) const {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool GrContext::wait(int numSemaphores, const GrBackendSemaphore waitSemaphores[]) {
+    if (!fGpu || fGpu->caps()->fenceSyncSupport()) {
+        return false;
+    }
+    for (int i = 0; i < numSemaphores; ++i) {
+        sk_sp<GrSemaphore> sema = fResourceProvider->wrapBackendSemaphore(
+                waitSemaphores[i], GrResourceProvider::SemaphoreWrapType::kWillWait,
+                kAdopt_GrWrapOwnership);
+        fGpu->waitSemaphore(std::move(sema));
+    }
+    return true;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 void GrContext::flush() {
     ASSERT_SINGLE_OWNER
     RETURN_IF_ABANDONED
 
-    this->drawingManager()->flush(nullptr);
+    this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                  kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
 }
 
-GrSemaphoresSubmitted GrContext::flushAndSignalSemaphores(int numSemaphores,
-                                                          GrBackendSemaphore signalSemaphores[]) {
+GrSemaphoresSubmitted GrContext::flush(GrFlushFlags flags, int numSemaphores,
+                                       GrBackendSemaphore signalSemaphores[],
+                                       GrGpuFinishedProc finishedProc,
+                                       GrGpuFinishedContext finishedContext) {
     ASSERT_SINGLE_OWNER
     if (this->abandoned()) {
         return GrSemaphoresSubmitted::kNo;
     }
 
-    return this->drawingManager()->flush(nullptr, numSemaphores, signalSemaphores);
+    return this->drawingManager()->flush(nullptr, SkSurface::BackendSurfaceAccess::kNoAccess,
+                                         flags, numSemaphores, signalSemaphores, finishedProc,
+                                         finishedContext);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -31,7 +31,8 @@ namespace {
 class AtlasOp : public GrDrawOp {
 public:
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
-    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*) override {
+    GrProcessorSet::Analysis finalize(
+            const GrCaps&, const GrAppliedClip*, GrFSAAType, GrClampType) override {
         return GrProcessorSet::EmptySetAnalysis();
     }
     CombineResult onCombineIfPossible(GrOp* other, const GrCaps&) override {

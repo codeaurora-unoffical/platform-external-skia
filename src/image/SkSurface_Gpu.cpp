@@ -50,7 +50,8 @@ static GrRenderTarget* prepare_rt_for_external_access(SkSurface_Gpu* surface,
     }
 
     // Grab the render target *after* firing notifications, as it may get switched if CoW kicks in.
-    surface->getDevice()->flush();
+    surface->getDevice()->flush(SkSurface::BackendSurfaceAccess::kNoAccess,
+                                kNone_GrFlushFlags, 0, nullptr, nullptr, nullptr);
     GrRenderTargetContext* rtc = surface->getDevice()->accessRenderTargetContext();
     return rtc->accessRenderTarget();
 }
@@ -157,9 +158,13 @@ void SkSurface_Gpu::onDiscard() {
     fDevice->accessRenderTargetContext()->discard();
 }
 
-GrSemaphoresSubmitted SkSurface_Gpu::onFlush(int numSemaphores,
-                                             GrBackendSemaphore signalSemaphores[]) {
-    return fDevice->flushAndSignalSemaphores(numSemaphores, signalSemaphores);
+GrSemaphoresSubmitted SkSurface_Gpu::onFlush(BackendSurfaceAccess access, GrFlushFlags flags,
+                                             int numSemaphores,
+                                             GrBackendSemaphore signalSemaphores[],
+                                             GrGpuFinishedProc finishedProc,
+                                             GrGpuFinishedContext finishedContext) {
+    return fDevice->flush(access, flags, numSemaphores, signalSemaphores, finishedProc,
+                          finishedContext);
 }
 
 bool SkSurface_Gpu::onWait(int numSemaphores, const GrBackendSemaphore* waitSemaphores) {
@@ -207,6 +212,10 @@ bool SkSurface_Gpu::isCompatible(const SkSurfaceCharacterization& characterizati
     GrContext* ctx = fDevice->context();
 
     if (!characterization.isValid()) {
+        return false;
+    }
+
+    if (characterization.vulkanSecondaryCBCompatible()) {
         return false;
     }
 
@@ -623,9 +632,15 @@ sk_sp<SkSurface> SkSurface::MakeFromAHardwareBuffer(GrContext* context,
         SkColorType colorType =
                 GrAHardwareBufferUtils::GetSkColorTypeFromBufferFormat(bufferDesc.format);
 
-        return SkSurface::MakeFromBackendTexture(context, backendTexture, origin, 0,
-                                                 colorType, std::move(colorSpace),
-                                                 surfaceProps, deleteImageProc, deleteImageCtx);
+        sk_sp<SkSurface> surface = SkSurface::MakeFromBackendTexture(context, backendTexture,
+                origin, 0, colorType, std::move(colorSpace), surfaceProps, deleteImageProc,
+                deleteImageCtx);
+
+        if (!surface) {
+            SkASSERT(deleteImageProc);
+            deleteImageProc(deleteImageCtx);
+        }
+        return surface;
     } else {
         return nullptr;
     }

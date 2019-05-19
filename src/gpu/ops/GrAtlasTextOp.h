@@ -75,7 +75,8 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override;
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override;
+    GrProcessorSet::Analysis finalize(const GrCaps&, const GrAppliedClip*, GrFSAAType,
+                                      GrClampType) override;
 
     enum MaskType {
         kGrayscaleCoverageMask_MaskType,

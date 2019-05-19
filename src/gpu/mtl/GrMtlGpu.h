@@ -29,6 +29,10 @@ namespace SkSL {
     class Compiler;
 }
 
+// Helper macros for autorelease pools
+#define SK_BEGIN_AUTORELEASE_BLOCK @autoreleasepool {
+#define SK_END_AUTORELEASE_BLOCK }
+
 class GrMtlGpu : public GrGpu {
 public:
     static sk_sp<GrGpu> Make(GrContext* context, const GrContextOptions& options,
@@ -127,6 +131,12 @@ private:
 
     void onResetContext(uint32_t resetBits) override {}
 
+    void querySampleLocations(
+            GrRenderTarget*, const GrStencilSettings&, SkTArray<SkPoint>*) override {
+        SkASSERT(!this->caps()->sampleLocationsSupport());
+        SK_ABORT("Sample locations not yet implemented for Metal.");
+    }
+
     void xferBarrier(GrRenderTarget*, GrXferBarrierType) override {}
 
     sk_sp<GrTexture> onCreateTexture(const GrSurfaceDesc& desc, SkBudgeted budgeted,
@@ -163,8 +173,23 @@ private:
 
     void onResolveRenderTarget(GrRenderTarget* target) override { return; }
 
-    void onFinishFlush(bool insertedSemaphores) override {
-        this->submitCommandBuffer(kSkip_SyncQueue);
+    void onFinishFlush(GrSurfaceProxy*, SkSurface::BackendSurfaceAccess access,
+                       GrFlushFlags flags, bool insertedSemaphores,
+                       GrGpuFinishedProc finishedProc,
+                       GrGpuFinishedContext finishedContext) override {
+        if (flags & kSyncCpu_GrFlushFlag) {
+            this->submitCommandBuffer(kForce_SyncQueue);
+            if (finishedProc) {
+                finishedProc(finishedContext);
+            }
+        } else {
+            this->submitCommandBuffer(kSkip_SyncQueue);
+            // TODO: support finishedProc to actually be called when the GPU is done with the work
+            // and not immediately.
+            if (finishedProc) {
+                finishedProc(finishedContext);
+            }
+        }
     }
 
     // Function that uploads data onto textures with private storage mode (GPU access only).

@@ -128,6 +128,10 @@ SkShaderBase::Context* SkImageShader::onMakeContext(const ContextRec& rec,
         return nullptr;
     }
 
+    if (!rec.isLegacyCompatible(fImage->colorSpace())) {
+        return nullptr;
+    }
+
     return SkBitmapProcLegacyShader::MakeContext(*this, fTileModeX, fTileModeY,
                                                  SkBitmapProvider(fImage.get()), rec, alloc);
 }
@@ -250,6 +254,8 @@ std::unique_ptr<GrFragmentProcessor> SkImageShader::asFragmentProcessor(
                                           args.fDstColorSpaceInfo->colorSpace());
     if (isAlphaOnly) {
         return inner;
+    } else if (args.fInputColorIsOpaque) {
+        return GrFragmentProcessor::OverrideInput(std::move(inner), SK_PMColor4fWHITE, false);
     }
     return GrFragmentProcessor::MulChildByInputAlpha(std::move(inner));
 }
@@ -358,6 +364,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             case kARGB_4444_SkColorType:    p->append(SkRasterPipeline::gather_4444,    ctx); break;
             case kRGBA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx); break;
             case kRGBA_1010102_SkColorType: p->append(SkRasterPipeline::gather_1010102, ctx); break;
+            case kRGBA_F16Norm_SkColorType:
             case kRGBA_F16_SkColorType:     p->append(SkRasterPipeline::gather_f16,     ctx); break;
             case kRGBA_F32_SkColorType:     p->append(SkRasterPipeline::gather_f32,     ctx); break;
 
@@ -373,7 +380,7 @@ bool SkImageShader::onAppendStages(const StageRec& rec) const {
             case kBGRA_8888_SkColorType:    p->append(SkRasterPipeline::gather_8888,    ctx);
                                             p->append(SkRasterPipeline::swap_rb            ); break;
 
-            default: SkASSERT(false);
+            case kUnknown_SkColorType: SkASSERT(false);
         }
         if (decal_ctx) {
             p->append(SkRasterPipeline::check_decal_mask, decal_ctx);

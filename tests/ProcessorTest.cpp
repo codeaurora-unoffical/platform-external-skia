@@ -45,11 +45,13 @@ public:
 
     FixedFunctionFlags fixedFunctionFlags() const override { return FixedFunctionFlags::kNone; }
 
-    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip) override {
+    GrProcessorSet::Analysis finalize(const GrCaps& caps, const GrAppliedClip* clip,
+                                      GrFSAAType fsaaType, GrClampType clampType) override {
         static constexpr GrProcessorAnalysisColor kUnknownColor;
         SkPMColor4f overrideColor;
-        return fProcessors.finalize(kUnknownColor, GrProcessorAnalysisCoverage::kNone, clip, false,
-                                    caps, &overrideColor);
+        return fProcessors.finalize(
+                kUnknownColor, GrProcessorAnalysisCoverage::kNone, clip,
+                &GrUserStencilSettings::kUnused, fsaaType, caps, clampType, &overrideColor);
     }
 
 private:

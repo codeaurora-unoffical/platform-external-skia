@@ -272,6 +272,7 @@ SkColor4f SkColor4fPrepForDst(SkColor4f color, const GrColorSpaceInfo& colorSpac
     if (auto* xform = colorSpaceInfo.colorSpaceXformFromSRGB()) {
         color = xform->apply(color);
     }
+    // TODO: Should we clamp here if config is kRGBA_half_Clamped_GrPixelConfig?
     if (!GrPixelConfigIsFloatingPoint(colorSpaceInfo.config()) ||
         !caps.halfFloatVertexAttributeSupport()) {
         color = { SkTPin(color.fR, 0.0f, 1.0f),
@@ -306,6 +307,8 @@ GrPixelConfig SkColorType2GrPixelConfig(const SkColorType type) {
             return kUnknown_GrPixelConfig;
         case kGray_8_SkColorType:
             return kGray_8_GrPixelConfig;
+        case kRGBA_F16Norm_SkColorType:
+            return kRGBA_half_Clamped_GrPixelConfig;
         case kRGBA_F16_SkColorType:
             return kRGBA_half_GrPixelConfig;
         case kRGBA_F32_SkColorType:
@@ -361,6 +364,7 @@ static inline int32_t dither_range_type_for_config(GrPixelConfig dstConfig) {
         case kRGBA_float_GrPixelConfig:
         case kRG_float_GrPixelConfig:
         case kRGBA_half_GrPixelConfig:
+        case kRGBA_half_Clamped_GrPixelConfig:
         case kRGB_ETC1_GrPixelConfig:
         case kAlpha_8_GrPixelConfig:
         case kAlpha_8_as_Alpha_GrPixelConfig:
@@ -383,12 +387,13 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
     SkColor4f origColor = SkColor4fPrepForDst(skPaint.getColor4f(), colorSpaceInfo,
                                               *context->priv().caps());
 
-    const GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
+    GrFPArgs fpArgs(context, &viewM, skPaint.getFilterQuality(), &colorSpaceInfo);
 
     // Setup the initial color considering the shader, the SkPaint color, and the presence or not
     // of per-vertex colors.
     std::unique_ptr<GrFragmentProcessor> shaderFP;
     if (!primColorMode || blend_requires_shader(*primColorMode)) {
+        fpArgs.fInputColorIsOpaque = origColor.isOpaque();
         if (shaderProcessor) {
             shaderFP = std::move(*shaderProcessor);
         } else if (const auto* shader = as_SB(skPaint.getShader())) {
@@ -485,6 +490,8 @@ static inline bool skpaint_to_grpaint_impl(GrRecordingContext* context,
 
     SkMaskFilterBase* maskFilter = as_MFB(skPaint.getMaskFilter());
     if (maskFilter) {
+        // We may have set this before passing to the SkShader.
+        fpArgs.fInputColorIsOpaque = false;
         if (auto mfFP = maskFilter->asFragmentProcessor(fpArgs)) {
             grPaint->addCoverageFragmentProcessor(std::move(mfFP));
         }
@@ -579,7 +586,11 @@ bool SkPaintToGrPaintWithTexture(GrRecordingContext* context,
             shaderFP = GrFragmentProcessor::MakeInputPremulAndMulByOutput(std::move(fp));
         }
     } else {
-        shaderFP = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
+        if (paint.getColor4f().isOpaque()) {
+            shaderFP = GrFragmentProcessor::OverrideInput(std::move(fp), SK_PMColor4fWHITE, false);
+        } else {
+            shaderFP = GrFragmentProcessor::MulChildByInputAlpha(std::move(fp));
+        }
     }
 
     return SkPaintToGrPaintReplaceShader(context, colorSpaceInfo, paint, std::move(shaderFP),
